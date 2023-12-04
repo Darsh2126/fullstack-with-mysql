@@ -1,10 +1,10 @@
 import express from "express";
-import mysql from "mysql";
+import mysql from "mysql2/promise";
 import cors from "cors";
 
 const app = express();
 
-const db = mysql.createConnection({
+const db = mysql.createPool({
   host: "localhost",
   user: "root",
   password: "root",
@@ -14,28 +14,13 @@ const db = mysql.createConnection({
 app.use(express.json());
 app.use(cors());
 
-app.get("/", (req, res) => {
-  res.json("This is the backend");
-});
-
-app.get("/books", (req, res) => {
-  const query = "select * from books;";
-  db.query(query, (err, data) => {
-    if (err) return res.json(err);
-    return res.json(data);
+db.query("Select 1")
+  .then((result) => {
+    console.log(">>>result", result);
+  })
+  .catch((err) => {
+    console.log(">>>>errr", err);
   });
-});
-
-app.post("/books", (req, res) => {
-  const query =
-    "INSERT INTO books (`title`, `description`, `cover`) VALUES (?);";
-  const values = [req.body.title, req.body.description, req.body.cover];
-
-  db.query(query, [values], (err, data) => {
-    if (err) return res.json(err);
-    return res.json("Books has been created");
-  });
-});
 
 app.listen(8800, () => {
   console.log(">>>Connected to Backend");
